@@ -24,7 +24,7 @@ end
 
   scope "/user", CursorAppWeb do
     pipe_through [:browser, :require_authenticated_user, :require_user]
-    live "/", Live.UserDashboardLive, :index
+    live "/", UserDashboardLive, :index
   end
 
 

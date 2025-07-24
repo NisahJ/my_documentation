@@ -225,7 +225,7 @@ defmodule CursorAppWeb.UserAuth do
   end
 
   def require_user(conn, _opts) do
-    if conn.assigns.current_user.role == "user" do
+    if conn.assigns.current_user.role in ["user", "admin"] do
       conn
     else
       conn
