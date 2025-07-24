@@ -17,3 +17,4 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
   * Forum: https://elixirforum.com/c/phoenix-forum
   * Source: https://github.com/phoenixframework/phoenix
 # my_documentation
+Latihan 23/24 - 07 - 2025  - buat documentation Authentication
