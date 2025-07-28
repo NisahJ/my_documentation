@@ -1,6 +1,9 @@
 defmodule CursorAppWeb.Router do
+
   alias AdminDashboardLive
   alias UserDashboardLive
+  alias AdminSettingsLive
+  alias AdminUsersLive
   use CursorAppWeb, :router
   use CursorAppWeb, :live_view
 
@@ -22,11 +25,17 @@ defmodule CursorAppWeb.Router do
     live "/", Live.AdminDashboardLive, :index
 end
 
+scope "/admin", CursorAppWeb do
+  pipe_through :browser
+
+  live "/users", AdminUsersLive
+  live "/settings", AdminSettingsLive
+end
+
   scope "/user", CursorAppWeb do
     pipe_through [:browser, :require_authenticated_user, :require_user]
     live "/", UserDashboardLive, :index
   end
-
 
   pipeline :api do
     plug :accepts, ["json"]
