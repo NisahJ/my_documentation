@@ -1,29 +1,47 @@
 defmodule CursorAppWeb.Live.AdminDashboardLive do
   use CursorAppWeb, :live_view
 
-  @spec mount(any(), any(), map()) :: {:ok, map()}
-  def mount(_params, _session, socket) do
-    {:ok, assign(socket, :page_title, "Admin Dashboard")}
+   # Assign default state (sidebar terbuka)
+   def mount(_params, _session, socket) do
+    {:ok, assign(socket, :sidebar_open, true)}
   end
 
-  def render(assigns) do
+  # Tangani klik burger button
+  def handle_event("toggle_sidebar", _params, socket) do
+    {:noreply, update(socket, :sidebar_open, fn open -> not open end)}
+  end
+
+   # Paparan (guna @sidebar_open)
+   def render(assigns) do
     ~H"""
-    <h1 class="text-3xl font-bold mb-6">Admin Dashboard</h1>
-    <div>
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside class={[
+        "transition-all duration-300 ease-in-out",
+        @sidebar_open && "w-64 bg-zinc-800 text-white p-4 shadow-md rounded-r-lg",
+        !@sidebar_open && "w-0 overflow-hidden"
+      ]}>
+        <%= if @sidebar_open do %>
+          <h2 class="text-xl font-bold mb-6">Admin Menu</h2>
+          <nav class="space-y-2">
+            <.link navigate={~p"/admin/settings"} class="block px-4 py-2 rounded hover:bg-zinc-700">⚙️ Settings</.link>
+            <.link navigate={~p"/admin/users"} class="block px-4 py-2 rounded hover:bg-zinc-700">👥 Users</.link>
+          </nav>
+        <% end %>
+      </aside>
 
-      <nav class="h-full overflow-y-auto p-4">
-       <ul class="space-y-2">
+      <!-- Main Content -->
+      <main class="flex-1 bg-gray-100 p-6">
+        <button
+          phx-click="toggle_sidebar"
+          class="mb-4 md:hidden bg-zinc-800 text-white p-2 rounded"
+        >
+          ☰
+        </button>
 
-        <li>
-          <a href={~p"/admin/settings"} class="block p-2 rounded hover:bg-gray-700"> Setting </a>
-        </li>
-
-        <li>
-          <a href={~p"/admin/users"} class="block p-2 rounded hover:bg-gray-700"> User </a>
-        </li>
-
-        </ul>
-      </nav>
+        <h1 class="text-3xl font-bold mb-6">Admin Dashboard</h1>
+        <p>Selamat datang ke dashboard admin!</p>
+      </main>
     </div>
     """
   end
