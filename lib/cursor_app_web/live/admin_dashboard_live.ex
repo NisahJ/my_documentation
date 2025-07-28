@@ -18,7 +18,7 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
       <!-- Sidebar -->
       <aside class={[
         "transition-all duration-300 ease-in-out",
-        @sidebar_open && "w-50 bg-zinc-600 text-white p-8 shadow-md rounded-r-lg",
+        @sidebar_open && "w-50 bg-zinc-500 text-white p-8 shadow-md rounded-r-lg",
         !@sidebar_open && "w-0 overflow-hidden"
       ]}>
         <%= if @sidebar_open do %>
@@ -31,7 +31,7 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
       </aside>
 
       <!-- Main Content -->
-      <main class="flex-1 bg-gray-100 p-6">
+      <main class="flex-1 bg-gray-20 p-6">
         <button
           phx-click="toggle_sidebar"
           class="mb-4 bg-zinc-800 text-white p-2 rounded"
@@ -39,8 +39,10 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
           ☰
         </button>
 
+        <div class="text-center">
         <h1 class="text-3xl font-bold mb-6">Admin Dashboard</h1>
         <p>Selamat datang ke dashboard admin!</p>
+        </div>
       </main>
     </div>
     """
