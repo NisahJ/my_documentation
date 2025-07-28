@@ -12,7 +12,7 @@ defmodule CursorAppWeb.AdminUsersLive do
     <div class="fixed top-4 left-4 md:left-6 md:top-6 z-50 w-full flex md:justify-start">
       <.link
         navigate={~p"/admin"}
-        class="inline-block bg-blue-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded shadow"
+        class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded shadow"
       >
         ← Back to Dashboard
       </.link>

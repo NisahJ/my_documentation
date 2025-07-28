@@ -18,7 +18,7 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
       <!-- Sidebar -->
       <aside class={[
         "transition-all duration-300 ease-in-out",
-        @sidebar_open && "w-55 bg-zinc-800 text-white p-8 shadow-md rounded-r-lg",
+        @sidebar_open && "w-50 bg-zinc-600 text-white p-8 shadow-md rounded-r-lg",
         !@sidebar_open && "w-0 overflow-hidden"
       ]}>
         <%= if @sidebar_open do %>
