@@ -6,7 +6,7 @@ defmodule CursorAppWeb.UserSettingsLive do
   def render(assigns) do
     ~H"""
     <div class="h-screen w-full flex items-center justify-center px-4">
-    <div class="max-h-[50vh] overflow-y-auto w-full max-w-2xl bg-white/80 backdrop-blur-md rounded-xl p-6 shadow-lg space-y-4">
+    <div class="max-h-[65vh] overflow-y-auto w-full max-w-2xl bg-white/80 backdrop-blur-md rounded-xl p-6 shadow-lg space-y-4">
         <.header class="text-center">
       Account Settings
       <:subtitle>Manage your account email address and password settings</:subtitle>
