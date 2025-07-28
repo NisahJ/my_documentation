@@ -5,26 +5,35 @@ defmodule CursorAppWeb.UserForgotPasswordLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
-      <.header class="text-center">
-        Forgot your password?
-        <:subtitle>We'll send a password reset link to your inbox</:subtitle>
-      </.header>
+<div class="flex items-center justify-center min-h-screen">
+  <div class="bg-white/90 p-8 rounded-xl shadow-lg w-full max-w-md">
+    <.header class="text-center mb-6">
+      Forgot your password?
+      <:subtitle>We’ll send a password reset link to your inbox.</:subtitle>
+    </.header>
 
-      <.simple_form for={@form} id="reset_password_form" phx-submit="send_email">
-        <.input field={@form[:email]} type="email" placeholder="Email" required />
-        <:actions>
-          <.button phx-disable-with="Sending..." class="w-full">
-            Send password reset instructions
-          </.button>
-        </:actions>
-      </.simple_form>
-      <p class="text-center text-sm mt-4">
-        <.link href={~p"/users/register"}>Register</.link>
-        | <.link href={~p"/users/log_in"}>Log in</.link>
-      </p>
+    <.simple_form for={@form} id="reset_password_form" phx-submit="send_email">
+      <.input field={@form[:email]} type="email" placeholder="Email" label="Email" required />
+
+      <:actions>
+        <.button phx-disable-with="Sending..." class="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
+          Send password reset instructions
+        </.button>
+      </:actions>
+    </.simple_form>
+
+    <div class="mt-6 text-center text-sm">
+      <.link navigate={~p"/users/register"} class="text-indigo-600 font-medium hover:underline">
+        Register
+      </.link>
+      <span class="mx-2 text-gray-400">|</span>
+      <.link navigate={~p"/users/log_in"} class="text-indigo-600 font-medium hover:underline">
+        Log in
+      </.link>
     </div>
-    """
+  </div>
+</div>
+"""
   end
 
   def mount(_params, _session, socket) do
