@@ -14,11 +14,11 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
    # Paparan (guna @sidebar_open)
    def render(assigns) do
     ~H"""
-    <div class="flex min-h-screen">
+    <div class="">
       <!-- Sidebar -->
       <aside class={[
         "transition-all duration-300 ease-in-out",
-        @sidebar_open && "w-64 bg-zinc-800 text-white p-8 shadow-md rounded-r-lg",
+        @sidebar_open && "w-55 bg-zinc-800 text-white p-8 shadow-md rounded-r-lg",
         !@sidebar_open && "w-0 overflow-hidden"
       ]}>
         <%= if @sidebar_open do %>
