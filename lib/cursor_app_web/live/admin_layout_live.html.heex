@@ -1,0 +1,19 @@
+<div class="flex h-screen">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-zinc-800 text-white p-6 space-y-6">
+    <h2 class="text-xl font-bold">Admin Panel</h2>
+    <nav class="space-y-4">
+      <.link href={~p"/admin/users"} class="block hover:bg-zinc-700 px-4 py-2 rounded">
+        👥 Manage Users
+      </.link>
+      <.link href={~p"/admin/settings"} class="block hover:bg-zinc-700 px-4 py-2 rounded">
+        ⚙️ System Settings
+      </.link>
+    </nav>
+  </aside>
+
+  <!-- Page Content -->
+  <main class="flex-1 p-8 overflow-auto bg-gray-100">
+    <%= @inner_content %>
+  </main>
+</div>
