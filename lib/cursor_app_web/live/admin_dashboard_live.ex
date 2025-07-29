@@ -18,6 +18,18 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
     {:noreply, update(socket, :show_users_sub, fn val -> not val end)}
   end
 
+  def handle_params(%{"list" => "1"}, _url, socket) do
+    users = CursorApp.Accounts.list_users()
+    changeset = CursorApp.Accounts.change_user(%CursorApp.Accounts.User{})
+
+    {:noreply,
+     socket
+     |> assign(:page, "list_1")
+     |> assign(:users, users)
+     |> assign(:changeset, changeset)
+     |> assign(:form, to_form(changeset))}
+  end
+
   def handle_params(%{"list" => id}, _url, socket) do
     {:noreply, assign(socket, page: "list_#{id}")}
   end
@@ -90,18 +102,12 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
                 <table class="w-full text-left text-sm bg-white/80 backdrop-blur-sm">
                   <thead class="bg-zinc-200 text-zinc-800">
                     <tr>
-                      <th class="px-4 py-2">Nama</th>
-                      <th class="px-4 py-2">Umur</th>
-                      <th class="px-4 py-2">Alamat</th>
                       <th class="px-4 py-2">Email</th>
                     </tr>
                   </thead>
                   <tbody>
                     <%= for user <- @users do %>
                       <tr class="border-b hover:bg-zinc-50">
-                        <td class="px-4 py-2"><%= user.name %></td>
-                        <td class="px-4 py-2"><%= user.age %></td>
-                        <td class="px-4 py-2"><%= user.address %></td>
                         <td class="px-4 py-2"><%= user.email %></td>
                       </tr>
                     <% end %>
@@ -113,29 +119,10 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
                 <h2 class="text-lg font-semibold mb-4 text-zinc-800">Tambah Pengguna Baru</h2>
 
                 <.form for={@changeset} phx-submit="save_user" class="space-y-4">
-                  <div>
-                    <label class="block text-sm">Nama</label>
-                    <.input type="text" name="user[name]" value={@changeset.data.name} />
-                  </div>
 
                   <div>
                     <label class="block text-sm">Email</label>
                     <.input type="email" name="user[email]" value={@changeset.data.email} />
-                  </div>
-
-                  <div>
-                    <label class="block text-sm">Umur</label>
-                    <.input type="number" name="user[age]" value={@changeset.data.age} />
-                  </div>
-
-                  <div>
-                    <label class="block text-sm">Alamat</label>
-                    <.input type="text" name="user[address]" value={@changeset.data.address} />
-                  </div>
-
-                  <div>
-                    <label class="block text-sm">Password</label>
-                    <.input type="password" name="user[password]" />
                   </div>
 
                   <.button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
@@ -146,16 +133,35 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
             </div>
 
           <% "list_2" -> %>
-            <div class="text-center">
-              <h1 class="text-2xl font-bold mb-4 text-zinc-800">Senarai 2</h1>
-              <p class="text-zinc-600">Ini adalah kandungan Senarai 2.</p>
-            </div>
+  <div class="max-w-4xl mx-left">
+    <h1 class="text-2xl font-bold mb-4 text-zinc-800">Senarai 2 – Projek Aktif</h1>
+
+    <p class="mb-4 font-semibold text-zinc-600">Senarai projek yang sedang berjalan...</p>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div class="bg-white p-4 rounded shadow">
+        <h3 class="font-semibold text-zinc-800">Projek A</h3>
+        <p class="text-sm text-zinc-600">Status: Berjalan</p>
+      </div>
+      <div class="bg-white p-4 rounded shadow">
+        <h3 class="font-semibold text-zinc-800">Projek B</h3>
+        <p class="text-sm text-zinc-600">Status: Perancangan</p>
+      </div>
+    </div>
+  </div>
 
           <% "list_3" -> %>
-            <div class="text-center">
-              <h1 class="text-2xl font-bold mb-4 text-zinc-800">Senarai 3</h1>
-              <p class="text-zinc-600">Ini adalah kandungan Senarai 3.</p>
-            </div>
+  <div class="max-w-4xl mx-left">
+    <h1 class="text-2xl font-bold mb-4 text-zinc-800">Senarai 3 – Laporan</h1>
+
+    <p class="mb-4 font-semibold text-zinc-600">Laporan prestasi atau penggunaan sistem.</p>
+
+    <ul class="list-disc pl-6 space-y-2 text-black-700">
+      <li>Laporan log masuk pengguna</li>
+      <li>Laporan aktiviti mingguan</li>
+      <li>Laporan sistem error</li>
+    </ul>
+  </div>
         <% end %>
       </main>
     </div>
