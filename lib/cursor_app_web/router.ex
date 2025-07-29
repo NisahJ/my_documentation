@@ -23,6 +23,7 @@ defmodule CursorAppWeb.Router do
   scope "/admin", CursorAppWeb do
     pipe_through [:browser, :require_authenticated_user, :require_admin]
     live "/", Live.AdminDashboardLive, :index
+    live "/users/list/:list", Live.AdminDashboardLive
 end
 
 scope "/admin", CursorAppWeb do
