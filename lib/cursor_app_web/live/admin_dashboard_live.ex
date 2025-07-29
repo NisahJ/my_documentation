@@ -20,14 +20,11 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
 
   def handle_params(%{"list" => "1"}, _url, socket) do
     users = CursorApp.Accounts.list_users()
-    changeset = CursorApp.Accounts.change_user(%CursorApp.Accounts.User{})
 
     {:noreply,
      socket
      |> assign(:page, "list_1")
-     |> assign(:users, users)
-     |> assign(:changeset, changeset)
-     |> assign(:form, to_form(changeset))}
+     |> assign(:users, users)}
   end
 
   def handle_params(%{"list" => id}, _url, socket) do
@@ -82,87 +79,66 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
 
         <!-- Page Content -->
         <%= case @page do %>
-          <% "dashboard" -> %>
-            <div class="text-center">
-              <h1 class="text-3xl font-bold mb-6">Admin Dashboard</h1>
-              <p>Selamat datang ke dashboard admin!</p>
-            </div>
+  <% "dashboard" -> %>
+    <div class="text-center">
+      <h1 class="text-3xl font-bold mb-6">Admin Dashboard</h1>
+      <p>Selamat datang ke dashboard admin!</p>
+    </div>
 
-          <% "list_1" -> %>
-            <div class="max-w-5xl mx-auto">
-              <h1 class="text-2xl font-bold mb-6 text-zinc-800">Senarai 1 – Pengguna</h1>
-
-              <%= if flash = @flash[:info] do %>
-                <div class="mb-4 bg-green-100 text-green-800 px-4 py-2 rounded">
-                  <%= flash %>
-                </div>
-              <% end %>
-
-              <div class="overflow-auto rounded shadow mb-8">
-                <table class="w-full text-left text-sm bg-white/80 backdrop-blur-sm">
-                  <thead class="bg-zinc-200 text-zinc-800">
-                    <tr>
-                      <th class="px-4 py-2">Email</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <%= for user <- @users do %>
-                      <tr class="border-b hover:bg-zinc-50">
-                        <td class="px-4 py-2"><%= user.email %></td>
-                      </tr>
-                    <% end %>
-                  </tbody>
-                </table>
-              </div>
-
-              <div class="bg-white/80 backdrop-blur-sm p-6 rounded shadow">
-                <h2 class="text-lg font-semibold mb-4 text-zinc-800">Tambah Pengguna Baru</h2>
-
-                <.form for={@changeset} phx-submit="save_user" class="space-y-4">
-
-                  <div>
-                    <label class="block text-sm">Email</label>
-                    <.input type="email" name="user[email]" value={@changeset.data.email} />
-                  </div>
-
-                  <.button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                    Tambah
-                  </.button>
-                </.form>
-              </div>
-            </div>
-
-          <% "list_2" -> %>
-  <div class="max-w-4xl mx-left">
-    <h1 class="text-2xl font-bold mb-4 text-zinc-800">Senarai 2 – Projek Aktif</h1>
-
-    <p class="mb-4 font-semibold text-zinc-600">Senarai projek yang sedang berjalan...</p>
-
-    <div class="grid grid-cols-2 gap-4">
-      <div class="bg-white p-4 rounded shadow">
-        <h3 class="font-semibold text-zinc-800">Projek A</h3>
-        <p class="text-sm text-zinc-600">Status: Berjalan</p>
-      </div>
-      <div class="bg-white p-4 rounded shadow">
-        <h3 class="font-semibold text-zinc-800">Projek B</h3>
-        <p class="text-sm text-zinc-600">Status: Perancangan</p>
+  <% "list_1" -> %>
+    <div class="max-w-4xl mx-left mt-8">
+      <h2 class="text-2xl font-bold mb-4 text-zinc-800">Senarai Email Pengguna</h2>
+      <div class="overflow-auto rounded shadow">
+        <table class="w-full text-left text-sm bg-white/80 backdrop-blur-sm border border-zinc-300">
+          <thead class="bg-zinc-200 text-zinc-800">
+            <tr>
+              <th class="px-4 py-2">#</th>
+              <th class="px-4 py-2">Email</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for {user, index} <- Enum.with_index(@users || [], 1) do %>
+              <tr class="border-b hover:bg-zinc-50">
+                <td class="px-4 py-2"><%= index %></td>
+                <td class="px-4 py-2"><%= user.email %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
       </div>
     </div>
-  </div>
 
-          <% "list_3" -> %>
-  <div class="max-w-4xl mx-left">
-    <h1 class="text-2xl font-bold mb-4 text-zinc-800">Senarai 3 – Laporan</h1>
+  <% "list_2" -> %>
+    <div class="max-w-4xl mx-left">
+      <h1 class="text-2xl font-bold mb-4 text-zinc-800">Senarai 2 – Projek Aktif</h1>
+      <p class="mb-4 font-semibold text-zinc-600">Senarai projek yang sedang berjalan...</p>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-white p-4 rounded shadow">
+          <h3 class="font-semibold text-zinc-800">Projek A</h3>
+          <p class="text-sm text-zinc-600">Status: Berjalan</p>
+        </div>
+        <div class="bg-white p-4 rounded shadow">
+          <h3 class="font-semibold text-zinc-800">Projek B</h3>
+          <p class="text-sm text-zinc-600">Status: Perancangan</p>
+        </div>
+      </div>
+    </div>
 
-    <p class="mb-4 font-semibold text-zinc-600">Laporan prestasi atau penggunaan sistem.</p>
+  <% "list_3" -> %>
+    <div class="max-w-4xl mx-left">
+      <h1 class="text-2xl font-bold mb-4 text-zinc-800">Senarai 3 – Laporan</h1>
+      <p class="mb-4 font-semibold text-zinc-600">Laporan prestasi atau penggunaan sistem.</p>
+      <ul class="list-disc pl-6 space-y-2 text-black-700">
+        <li>Laporan log masuk pengguna</li>
+        <li>Laporan aktiviti mingguan</li>
+        <li>Laporan sistem error</li>
+      </ul>
+    </div>
 
-    <ul class="list-disc pl-6 space-y-2 text-black-700">
-      <li>Laporan log masuk pengguna</li>
-      <li>Laporan aktiviti mingguan</li>
-      <li>Laporan sistem error</li>
-    </ul>
-  </div>
-        <% end %>
+  <% _ -> %>
+    <div class="text-red-500">Page tidak dijumpai: <%= @page %></div>
+<% end %>
+
       </main>
     </div>
     """
