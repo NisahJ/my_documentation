@@ -10,24 +10,31 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
      )}
   end
 
-  def handle_event("toggle_sidebar", _params, socket) do
+  def handle_event("toggle_sidebar", _params, socket) do   ## ini untuk side bar
     {:noreply, update(socket, :sidebar_open, fn open -> not open end)}
   end
 
-  def handle_event("toggle_users_sub", _params, socket) do
+  def handle_event("toggle_users_sub", _params, socket) do  ## ini untuk sub_unit (sub_user dalam side bar)
     {:noreply, update(socket, :show_users_sub, fn val -> not val end)}
   end
 
-  def handle_params(%{"list" => "1"}, _url, socket) do
-    users = CursorApp.Accounts.list_users()
+  def handle_params(%{"list" => "1"} = params, _url, socket) do   ## yang ini fokus ke list_1 (senarai_1)
+    page = String.to_integer(Map.get(params, "page", "1"))
+    per_page = 5
+    offset = (page - 1) * per_page
+
+    users = CursorApp.Accounts.list_users(limit: per_page, offset: offset)
+    total_users = CursorApp.Accounts.count_users()
+    total_pages = div(total_users + per_page - 1, per_page)
 
     {:noreply,
      socket
      |> assign(:page, "list_1")
-     |> assign(:users, users)}
+     |> assign(:users, users)
+     |> assign(:pagination, %{page: page, total_pages: total_pages})}
   end
 
-  def handle_params(%{"list" => id}, _url, socket) do
+  def handle_params(%{"list" => id}, _url, socket) do     ## ini untuk list_2 (senarai_2) dan list_3 (senarai_3), dan list-list yang lain
     {:noreply, assign(socket, page: "list_#{id}")}
   end
 
@@ -98,17 +105,17 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
 
         <!-- Page Content -->
         <%= case @page do %>
-  <% "dashboard" -> %>
-    <div class="text-center">
+     <% "dashboard" -> %>
+     <div class="text-center">
       <h1 class="text-3xl font-bold mb-6">Admin Dashboard</h1>
-      <p>Selamat datang ke dashboard admin!</p>
-    </div>
+       <p>Selamat datang ke dashboard admin!</p>
+     </div>
 
-  <% "list_1" -> %>
+    <% "list_1" -> %>
     <div class="max-w-4xl mx-left mt-8">
-  <h2 class="text-2xl font-bold mb-4 text-zinc-800">Senarai 1 – Email Pengguna</h2>
+    <h2 class="text-2xl font-bold mb-4 text-zinc-800">Senarai 1 – Email Pengguna</h2>
 
-  <div class="overflow-auto rounded shadow">
+    <div class="overflow-auto rounded shadow">
     <table class="w-full text-left text-sm bg-white/80 backdrop-blur-sm border border-zinc-300">
       <thead class="bg-zinc-200 text-zinc-800">
         <tr>
@@ -129,12 +136,31 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
           </tr>
         <% end %>
       </tbody>
-    </table>
-  </div>
-</div>
+     </table>
+    </div>
+    </div>
 
+     <!-- ✅ PAGINATION -->
+      <div class="flex justify-center mt-6 space-x-2">
+       <%= for p <- 1..@pagination.total_pages do %>
+        <.link
+      patch={"/admin/users/list/1?page=#{p}"}
+      class={
+      [
+        "px-3 py-1 rounded border",
+           if p == @pagination.page do
+              "bg-blue-600 text-white border-blue-600"
+           else
+              "bg-white text-blue-600 hover:bg-blue-100 border-gray-300"
+        end
+      ] }
+    >
+      <%= p %>
+      </.link>
+     <% end %>
+    </div>
 
-  <% "list_2" -> %>
+    <% "list_2" -> %>
     <div class="max-w-4xl mx-left">
       <h1 class="text-2xl font-bold mb-4 text-zinc-800">Senarai 2 – Projek Aktif</h1>
       <p class="mb-4 font-semibold text-zinc-600">Senarai projek yang sedang berjalan...</p>
@@ -150,8 +176,8 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
       </div>
     </div>
 
-  <% "list_3" -> %>
-    <div class="max-w-4xl mx-left">
+    <% "list_3" -> %>
+     <div class="max-w-4xl mx-left">
       <h1 class="text-2xl font-bold mb-4 text-zinc-800">Senarai 3 – Laporan</h1>
       <p class="mb-4 font-semibold text-zinc-600">Laporan prestasi atau penggunaan sistem.</p>
       <ul class="list-disc pl-6 space-y-2 text-black-700">
@@ -161,9 +187,9 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
       </ul>
     </div>
 
-  <% _ -> %>
-    <div class="text-red-500">Page tidak dijumpai: <%= @page %></div>
-<% end %>
+    <% _ -> %>
+     <div class="text-red-500">Page tidak dijumpai: <%= @page %></div>
+    <% end %>
 
       </main>
     </div>

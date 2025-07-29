@@ -4,14 +4,41 @@ defmodule CursorApp.Accounts do
   """
 
   import Ecto.Query, warn: false
+  import Ecto.Query
   alias CursorApp.Repo
-
   alias CursorApp.Accounts.{User, UserToken, UserNotifier}
 
 
-  def list_users do
-    Repo.all(User)
+  def list_users(opts \\ []) do
+    query = User
+
+    query =
+      query
+      |> maybe_limit(opts)
+      |> maybe_offset(opts)
+
+    Repo.all(query)
   end
+
+  defp maybe_limit(query, opts) do
+    case Keyword.get(opts, :limit) do
+      nil -> query
+      val -> limit(query, ^val)
+    end
+  end
+
+  defp maybe_offset(query, opts) do
+    case Keyword.get(opts, :offset) do
+      nil -> query
+      val -> offset(query, ^val)
+    end
+  end
+
+  def count_users do
+    Repo.aggregate(User, :count, :id)
+  end
+
+
   ## Database getters
 
   @doc """
