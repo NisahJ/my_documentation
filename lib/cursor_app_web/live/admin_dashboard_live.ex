@@ -7,7 +7,8 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
        sidebar_open: true,
        page: "dashboard",
        show_users_sub: false,
-       selected_user_id: nil
+       selected_user_id: nil,
+       users_section_active: false
      )}
   end
 
@@ -19,10 +20,10 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
     {:noreply, update(socket, :show_users_sub, fn val -> not val end)}
   end
 
-  def handle_params(%{"list" => "1"} = params, _url, socket) do   ## yang ini fokus ke list_1 (senarai_1)
-    page = String.to_integer(Map.get(params, "page", "1"))
+  def handle_params(%{"list" => "1"} = params, _url, socket) do
+    page_int = String.to_integer(Map.get(params, "page", "1"))
     per_page = 5
-    offset = (page - 1) * per_page
+    offset = (page_int - 1) * per_page
 
     users = CursorApp.Accounts.list_users(limit: per_page, offset: offset)
     total_users = CursorApp.Accounts.count_users()
@@ -32,7 +33,8 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
      socket
      |> assign(:page, "list_1")
      |> assign(:users, users)
-     |> assign(:pagination, %{page: page, total_pages: total_pages})}
+     |> assign(:pagination, %{page: page_int, total_pages: total_pages})
+     |> assign(:users_section_active, true)}
   end
 
   def handle_params(%{"list" => id}, _url, socket) do     ## ini untuk list_2 (senarai_2) dan list_3 (senarai_3), dan list-list yang lain
@@ -40,7 +42,10 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
   end
 
   def handle_params(_, _url, socket) do
-    {:noreply, assign(socket, page: "dashboard")}
+    {:noreply,
+     socket
+     |> assign(:page, "dashboard")
+     |> assign(:users_section_active, false)}  # ← penting
   end
 
   def handle_event("select_user", %{"id" => id}, socket) do
@@ -68,7 +73,7 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
 
   def render(assigns) do
     ~H"""
-    <div class="flex min-h-screen bg-white/70">
+    <div class="flex min-h-screen bg-white/70 rounded-lg">
       <!-- Sidebar -->
       <aside class={[
         "transition-all duration-300 ease-in-out",
@@ -78,16 +83,20 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
         <%= if @sidebar_open do %>
           <h2 class="text-xl font-bold mb-6">Admin Menu</h2>
           <nav class="space-y-2">
-            <.link navigate={~p"/admin/settings"} class="block px-4 py-2 rounded hover:bg-zinc-700">
-              ⚙️ Settings
-            </.link>
+
+          <.link patch={"/admin"}class={["block px-4 py-2 rounded",
+              @page == "dashboard" && "bg-zinc-600 text-white font-bold" || "hover:bg-zinc-700"]}>
+              🏠 Admin Homepage
+          </.link>
 
             <!-- Users Section -->
             <div>
-              <button phx-click="toggle_users_sub"
-                      class="w-full text-left font-semibold px-4 py-2 hover:bg-zinc-700 flex items-center justify-between">
-                <span>👥 Users</span>
-                <span><%= if @show_users_sub, do: "▲", else: "▼" %></span>
+              <button
+                     phx-click="toggle_users_sub"
+                     class={["w-full text-left font-semibold px-4 py-2 flex items-center justify-between rounded",
+                             @users_section_active && "bg-zinc-600 text-white" || "hover:bg-zinc-700"]}>
+                     <span>👥 Users</span>
+                     <span><%= if @show_users_sub, do: "▲", else: "▼" %></span>
               </button>
 
               <ul :if={@show_users_sub} class="pl-6 space-y-1 text-sm text-white">
@@ -103,12 +112,17 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
                <% end %>
               </ul>
             </div>
+
+           <.link navigate={~p"/admin/settings"} class="block px-4 py-2 rounded hover:bg-zinc-700">
+              ⚙️ Settings
+            </.link>
+
           </nav>
         <% end %>
       </aside>
 
       <!-- Main Content -->
-      <main class="flex-1 p-6">
+      <main class="flex-1 p-6 ">
         <!-- Toggle Sidebar Button -->
         <button phx-click="toggle_sidebar"
                 class="mb-4 bg-zinc-800 text-white p-2 rounded">
