@@ -35,6 +35,25 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
     {:noreply, assign(socket, page: "dashboard")}
   end
 
+  def handle_event("edit_user", %{"id" => id}, socket) do
+    # Contoh: redirect ke borang edit (atau boleh buat popup)
+    {:noreply, put_flash(socket, :info, "Edit user ID: #{id}")}
+  end
+
+  def handle_event("delete_user", %{"id" => id}, socket) do
+    user = CursorApp.Accounts.get_user!(id)
+    {:ok, _} = CursorApp.Accounts.delete_user(user)
+
+    users = CursorApp.Accounts.list_users()
+
+    {:noreply,
+     socket
+     |> assign(:users, users)
+     |> put_flash(:info, "Pengguna dipadam")}
+  end
+
+
+
   def render(assigns) do
     ~H"""
     <div class="flex min-h-screen bg-white/70">
@@ -87,26 +106,33 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
 
   <% "list_1" -> %>
     <div class="max-w-4xl mx-left mt-8">
-      <h2 class="text-2xl font-bold mb-4 text-zinc-800">Senarai Email Pengguna</h2>
-      <div class="overflow-auto rounded shadow">
-        <table class="w-full text-left text-sm bg-white/80 backdrop-blur-sm border border-zinc-300">
-          <thead class="bg-zinc-200 text-zinc-800">
-            <tr>
-              <th class="px-4 py-2">#</th>
-              <th class="px-4 py-2">Email</th>
-            </tr>
-          </thead>
-          <tbody>
-            <%= for {user, index} <- Enum.with_index(@users || [], 1) do %>
-              <tr class="border-b hover:bg-zinc-50">
-                <td class="px-4 py-2"><%= index %></td>
-                <td class="px-4 py-2"><%= user.email %></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    </div>
+  <h2 class="text-2xl font-bold mb-4 text-zinc-800">Senarai 1 – Email Pengguna</h2>
+
+  <div class="overflow-auto rounded shadow">
+    <table class="w-full text-left text-sm bg-white/80 backdrop-blur-sm border border-zinc-300">
+      <thead class="bg-zinc-200 text-zinc-800">
+        <tr>
+          <th class="px-4 py-2">Bil</th>
+          <th class="px-4 py-2">Email</th>
+          <th class="px-4 py-2">Tindakan</th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= for {user, index} <- Enum.with_index(@users || [], 1) do %>
+          <tr class="border-b hover:bg-zinc-50">
+            <td class="px-4 py-2"><%= index %></td>
+            <td class="px-4 py-2"><%= user.email %></td>
+            <td class="px-4 py-2 space-x-2">
+              <button phx-click="edit_user" phx-value-id={user.id} class="text-blue-600 hover:underline">Edit</button>
+              <button phx-click="delete_user" phx-value-id={user.id} class="text-red-600 hover:underline">Delete</button>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
 
   <% "list_2" -> %>
     <div class="max-w-4xl mx-left">

@@ -160,10 +160,4 @@ defmodule CursorApp.Accounts.User do
       add_error(changeset, :current_password, "is not valid")
     end
   end
-
-  def changeset(user, attrs) do
-    user
-    |> cast(attrs, [:name, :email, :age, :address])
-    |> validate_required([:name, :email])
-  end
 end
