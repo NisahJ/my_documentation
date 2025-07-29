@@ -6,7 +6,8 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
      assign(socket,
        sidebar_open: true,
        page: "dashboard",
-       show_users_sub: false
+       show_users_sub: false,
+       selected_user_id: nil
      )}
   end
 
@@ -40,6 +41,10 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
 
   def handle_params(_, _url, socket) do
     {:noreply, assign(socket, page: "dashboard")}
+  end
+
+  def handle_event("select_user", %{"id" => id}, socket) do
+    {:noreply, assign(socket, :selected_user_id, id)}
   end
 
   def handle_event("edit_user", %{"id" => id}, socket) do
@@ -86,9 +91,16 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
               </button>
 
               <ul :if={@show_users_sub} class="pl-6 space-y-1 text-sm text-white">
-                <li><.link patch={~p"/admin/users/list/1"} class="hover:underline">Senarai 1</.link></li>
-                <li><.link patch={~p"/admin/users/list/2"} class="hover:underline">Senarai 2</.link></li>
-                <li><.link patch={~p"/admin/users/list/3"} class="hover:underline">Senarai 3</.link></li>
+                  <%= for i <- 1..3 do %>
+               <li>
+               <.link
+                     patch={"/admin/users/list/#{i}"}
+                     class={["block px-2 py-1 rounded transition-colors",
+                     @page == "list_#{i}" && "bg-zinc-600 font-bold" || "hover:bg-zinc-600"]}>
+                     Senarai <%= i %>
+               </.link>
+               </li>
+               <% end %>
               </ul>
             </div>
           </nav>
@@ -125,8 +137,8 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
         </tr>
       </thead>
       <tbody>
-        <%= for {user, index} <- Enum.with_index(@users || [], 1) do %>
-          <tr class="border-b hover:bg-zinc-50">
+        <%= for {user, index} <- Enum.with_index(@users || [], (@pagination.page - 1) * 5 + 1) do %>
+          <tr class="border-b hover:bg-yellow-50">
             <td class="px-4 py-2"><%= index %></td>
             <td class="px-4 py-2"><%= user.email %></td>
             <td class="px-4 py-2 space-x-2">
@@ -141,7 +153,7 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
     </div>
 
      <!-- ✅ PAGINATION -->
-      <div class="flex justify-center mt-6 space-x-2">
+      <div class="flex justify-left mt-6 space-x-2">
        <%= for p <- 1..@pagination.total_pages do %>
         <.link
       patch={"/admin/users/list/1?page=#{p}"}
