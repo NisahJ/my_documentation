@@ -1,9 +1,9 @@
 defmodule CursorAppWeb.Router do
 
   alias AdminDashboardLive
+
   alias UserDashboardLive
-  alias AdminSettingsLive
-  alias AdminUsersLive
+
   use CursorAppWeb, :router
   use CursorAppWeb, :live_view
 
@@ -25,7 +25,6 @@ defmodule CursorAppWeb.Router do
     live "/", Live.AdminDashboardLive, :index
     live "/users/list/:list", Live.AdminDashboardLive
     live "/admin/users/list/:list", Live.AdminDashboardLive
-
 end
 
 scope "/admin", CursorAppWeb do
