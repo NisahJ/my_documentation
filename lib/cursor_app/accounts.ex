@@ -9,16 +9,23 @@ defmodule CursorApp.Accounts do
   alias CursorApp.Accounts.{User, UserToken, UserNotifier}
 
 
-  def list_users(opts \\ []) do
-    query = User
+  def list_users(opts \\ %{}) do
+    limit = Map.get(opts, :limit, 10)
+    offset = Map.get(opts, :offset, 0)
+    role_filter = build_role_filter(opts[:role])
 
-    query =
-      query
-      |> maybe_limit(opts)
-      |> maybe_offset(opts)
-
-    Repo.all(query)
+    from(u in User,
+      where: ^role_filter,
+      limit: ^limit,
+      offset: ^offset
+    )
+    |> Repo.all()
   end
+
+  defp build_role_filter(nil), do: true
+  defp build_role_filter("admin"), do: dynamic([u], u.role == "admin")
+  defp build_role_filter("user"), do: dynamic([u], u.role == "user")
+  defp build_role_filter(_), do: true
 
   defp maybe_limit(query, opts) do
     case Keyword.get(opts, :limit) do
@@ -34,8 +41,12 @@ defmodule CursorApp.Accounts do
     end
   end
 
-  def count_users do
-    Repo.aggregate(User, :count, :id)
+  def count_users(opts \\ %{}) do
+    role_filter = build_role_filter(opts[:role])
+
+    from(u in User, where: ^role_filter)
+    |> select([u], count(u.id))
+    |> Repo.one()
   end
 
 
