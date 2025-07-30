@@ -8,7 +8,8 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
        page: "dashboard",
        show_users_sub: false,
        selected_user_id: nil,
-       users_section_active: false
+       users_section_active: false,
+       show_status_dropdown: false
      )}
   end
 
@@ -20,13 +21,18 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
     {:noreply, update(socket, :show_users_sub, fn val -> not val end)}
   end
 
+  def handle_event("toggle_status_dropdown", _params, socket) do
+    {:noreply, update(socket, :show_status_dropdown, fn val -> not val end)}
+  end
+
   def handle_params(%{"list" => "1"} = params, _url, socket) do
     page_int = String.to_integer(Map.get(params, "page", "1"))
+    role = Map.get(params, "role", nil)
     per_page = 5
     offset = (page_int - 1) * per_page
 
-    users = CursorApp.Accounts.list_users(limit: per_page, offset: offset)
-    total_users = CursorApp.Accounts.count_users()
+    users = CursorApp.Accounts.list_users(%{limit: per_page, offset: offset, role: role})
+    total_users = CursorApp.Accounts.count_users(%{role: role})
     total_pages = div(total_users + per_page - 1, per_page)
 
     {:noreply,
@@ -34,6 +40,7 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
      |> assign(:page, "list_1")
      |> assign(:users, users)
      |> assign(:pagination, %{page: page_int, total_pages: total_pages})
+     |> assign(:selected_role, role)
      |> assign(:users_section_active, true)}
   end
 
@@ -141,12 +148,45 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
     <div class="max-w-4xl mx-left mt-8">
     <h2 class="text-2xl font-bold mb-4 text-zinc-800">Senarai 1 – Email Pengguna</h2>
 
+    <!-- ✅ Filter Role Dropdown -->
+       <div class="flex justify-between items-center mb-4">
+        <div class="relative inline-block text-left">
+           <button
+             type="button"
+             phx-click="toggle_status_dropdown"
+             class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+             Status <%= if @selected_role, do: "(#{String.capitalize(@selected_role)})" %> ▼
+           </button>
+
+       <div :if={@show_status_dropdown} class="absolute mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+         <div class="py-1 text-sm text-gray-700">
+          <.link
+            patch={"/admin/users/list/1?page=#{@pagination.page}"}
+            class="block px-4 py-2 hover:bg-gray-100"
+          >Semua</.link>
+
+          <.link
+            patch={"/admin/users/list/1?page=#{@pagination.page}&role=admin"}
+            class="block px-4 py-2 hover:bg-gray-100"
+          >Admin</.link>
+
+          <.link
+            patch={"/admin/users/list/1?page=#{@pagination.page}&role=user"}
+            class="block px-4 py-2 hover:bg-gray-100"
+          >User</.link>
+        </div>
+       </div>
+      </div>
+     </div>
+
     <div class="overflow-auto rounded shadow">
     <table class="w-full text-left text-sm bg-white/80 backdrop-blur-sm border border-zinc-300">
       <thead class="bg-zinc-200 text-zinc-800">
         <tr>
           <th class="px-4 py-2">Bil</th>
           <th class="px-4 py-2">Email</th>
+          <th class="px-4 py-2">Status</th>
           <th class="px-4 py-2">Tindakan</th>
         </tr>
       </thead>
@@ -155,6 +195,18 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
           <tr class="border-b hover:bg-yellow-50">
             <td class="px-4 py-2"><%= index %></td>
             <td class="px-4 py-2"><%= user.email %></td>
+
+            <td class="px-4 py-2">
+        <%= case user.role do %>
+            <% "admin" -> %>
+          <span class="inline-block px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-semibold">Admin</span>
+            <% "user" -> %>
+          <span class="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">User</span>
+            <% _ -> %>
+          <span class="text-gray-500">Tidak diketahui</span>
+        <% end %>
+        </td>
+
             <td class="px-4 py-2 space-x-2">
               <button phx-click="edit_user" phx-value-id={user.id} class="text-blue-600 hover:underline">Edit</button>
               <button phx-click="delete_user" phx-value-id={user.id} class="text-red-600 hover:underline">Delete</button>
