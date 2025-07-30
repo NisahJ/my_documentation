@@ -44,6 +44,13 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
      |> assign(:users_section_active, true)}
   end
 
+  def handle_event("filter_role", %{"role" => role}, socket) do
+    {:noreply,
+     push_patch(socket,
+       to: ~p"/your/path?list=1&role=#{role}&page=1"
+     )}
+  end
+
   def handle_params(%{"list" => id}, _url, socket) do     ## ini untuk list_2 (senarai_2) dan list_3 (senarai_3), dan list-list yang lain
     {:noreply, assign(socket, page: "list_#{id}")}
   end
@@ -161,20 +168,23 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
 
        <div :if={@show_status_dropdown} class="absolute mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
          <div class="py-1 text-sm text-gray-700">
-          <.link
-            patch={"/admin/users/list/1?page=#{@pagination.page}"}
-            class="block px-4 py-2 hover:bg-gray-100"
-          >Semua</.link>
+          <!-- Filter Semua -->
+            <.link
+               patch={"/admin/users/list/1?role=&page=1"}
+               class="block px-4 py-2 hover:bg-gray-100"
+               >Semua</.link>
 
-          <.link
-            patch={"/admin/users/list/1?page=#{@pagination.page}&role=admin"}
-            class="block px-4 py-2 hover:bg-gray-100"
-          >Admin</.link>
+            <!-- Filter Admin -->
+              <.link
+                patch={"/admin/users/list/1?role=admin&page=1"}
+                class="block px-4 py-2 hover:bg-gray-100"
+              >Admin</.link>
 
-          <.link
-            patch={"/admin/users/list/1?page=#{@pagination.page}&role=user"}
-            class="block px-4 py-2 hover:bg-gray-100"
-          >User</.link>
+            <!-- Filter User -->
+              <.link
+                patch={"/admin/users/list/1?role=user&page=1"}
+                class="block px-4 py-2 hover:bg-gray-100"
+              >User</.link>
         </div>
        </div>
       </div>
