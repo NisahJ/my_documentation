@@ -185,6 +185,20 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
                 patch={"/admin/users/list/1?role=user&page=1"}
                 class="block px-4 py-2 hover:bg-gray-100"
               >User</.link>
+          <.link
+            patch={"/admin/users/list/1?page=#{@pagination.page}"}
+            class="block px-4 py-2 hover:bg-gray-100"
+          >Semua</.link>
+
+          <.link
+            patch={"/admin/users/list/1?page=#{@pagination.page}&role=admin"}
+            class="block px-4 py-2 hover:bg-gray-100"
+          >Admin</.link>
+
+          <.link
+            patch={"/admin/users/list/1?page=#{@pagination.page}&role=user"}
+            class="block px-4 py-2 hover:bg-gray-100"
+          >User</.link>
         </div>
        </div>
       </div>
