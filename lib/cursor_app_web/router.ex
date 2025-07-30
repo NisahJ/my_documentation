@@ -57,6 +57,7 @@ end
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/users/live_redirect", UserSessionController, :from_live
   end
 
 
