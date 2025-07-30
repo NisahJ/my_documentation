@@ -33,7 +33,6 @@ defmodule CursorAppWeb.UserSessionController do
       |> redirect(to: ~p"/users/log_in")
     end
   end
-
   def delete(conn, _params) do
     conn
     |> put_flash(:info, "Logged out successfully.")

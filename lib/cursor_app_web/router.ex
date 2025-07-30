@@ -27,6 +27,16 @@ defmodule CursorAppWeb.Router do
     live "/admin/users/list/:list", Live.AdminDashboardLive
 end
 
+scope "/user", CursorAppWeb do
+  pipe_through :browser
+
+  live_session :default,
+    on_mount: [{CursorAppWeb.UserAuth, :mount_current_user}] do
+
+    live "/", UserDashboardLive, :index
+  end
+end
+
 scope "/admin", CursorAppWeb do
   pipe_through :browser
 
