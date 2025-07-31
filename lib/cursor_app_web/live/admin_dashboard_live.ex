@@ -173,50 +173,39 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
     <div class="max-w-4xl mx-left mt-8">
     <h2 class="text-2xl font-bold mb-4 text-zinc-800">Senarai 1 – Email Pengguna</h2>
 
-    <!-- ✅ Filter Role Dropdown -->
-       <div class="flex justify-between items-center mb-4">
-        <div class="relative inline-block text-left">
-           <button
-             type="button"
-             phx-click="toggle_status_dropdown"
-             class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-             Status <%= if @selected_role, do: "(#{String.capitalize(@selected_role)})" %> ▼
-           </button>
+    <!-- ✅ Status Dropdown + Search Bar dalam satu baris -->
+<div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+  <!-- Status Dropdown -->
+  <div class="relative inline-block text-left">
+    <button
+      type="button"
+      phx-click="toggle_status_dropdown"
+      class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+    >
+      Status <%= if @selected_role, do: "(#{String.capitalize(@selected_role)})" %> ▼
+    </button>
 
-       <div :if={@show_status_dropdown} class="absolute mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
-         <div class="py-1 text-sm text-gray-700">
-          <!-- Filter Semua -->
-            <.link
-               patch={"/admin/users/list/1?role=&page=1"}
-               class="block px-4 py-2 hover:bg-gray-100"
-               >Semua</.link>
-
-            <!-- Filter Admin -->
-              <.link
-                patch={"/admin/users/list/1?role=admin&page=1"}
-                class="block px-4 py-2 hover:bg-gray-100"
-              >Admin</.link>
-
-            <!-- Filter User -->
-              <.link
-                patch={"/admin/users/list/1?role=user&page=1"}
-                class="block px-4 py-2 hover:bg-gray-100"
-              >User</.link>
-        </div>
-       </div>
+    <div :if={@show_status_dropdown} class="absolute mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+      <div class="py-1 text-sm text-gray-700">
+        <.link patch={"/admin/users/list/1?role=&page=1&q=#{@search_query}"} class="block px-4 py-2 hover:bg-gray-100">Semua</.link>
+        <.link patch={"/admin/users/list/1?role=admin&page=1&q=#{@search_query}"} class="block px-4 py-2 hover:bg-gray-100">Admin</.link>
+        <.link patch={"/admin/users/list/1?role=user&page=1&q=#{@search_query}"} class="block px-4 py-2 hover:bg-gray-100">User</.link>
       </div>
-     </div>
+    </div>
+  </div>
 
-         <form phx-change="search" phx-submit="search" class="mb-4">
-           <input
-              type="text"
-              name="q"
-              value={@search_query}
-              placeholder="Search email or status..."
-              class="border p-2 rounded w-1/3"
-           />
-         </form>
+         <!-- Search Bar -->
+  <form phx-change="search" phx-submit="search">
+    <input
+      type="text"
+      name="q"
+      value={@search_query}
+      placeholder="Search email or status..."
+      class="border border-gray-300 rounded px-3 py-2 w-64"
+    />
+  </form>
+</div>
+</div>
 
     <div class="overflow-auto rounded shadow">
     <table class="w-full text-left text-sm bg-white/80 backdrop-blur-sm border border-zinc-300">
@@ -253,7 +242,6 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
         <% end %>
       </tbody>
      </table>
-    </div>
     </div>
 
      <!-- ✅ PAGINATION -->
