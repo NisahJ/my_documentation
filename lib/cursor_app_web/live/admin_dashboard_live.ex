@@ -50,17 +50,17 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
     {:noreply, put_flash(socket, :info, "Edit user ID: #{id}")}
   end
 
-  def handle_event("delete_user", %{"id" => id}, socket) do
-    user = String.to_integer(id)
-    {:ok, _} = CursorApp.Accounts.delete_user(user)
+ ## def handle_event("delete_user", %{"id" => id}, socket) do
+ ##   user = String.to_integer(id)
+ ##   {:ok, _} = CursorApp.Accounts.delete_user(user)
 
-    users = CursorApp.Accounts.list_users()
+ ##  users = CursorApp.Accounts.list_users()
 
-    {:noreply,
-     socket
-     |> assign(:users, users)
-     |> put_flash(:info, "Pengguna dipadam")}
-  end
+ ##   {:noreply,
+ ##    socket
+ ##    |> assign(:users, users)
+ ##    |> put_flash(:info, "Pengguna dipadam")}
+ ##    end
 
   def handle_params(%{"list" => "1"} = params, _url, socket) do
     page_int = String.to_integer(Map.get(params, "page", "1"))
