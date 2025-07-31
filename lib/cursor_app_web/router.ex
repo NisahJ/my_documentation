@@ -49,6 +49,16 @@ end
     live "/", UserDashboardLive, :index
   end
 
+  live_session :admin_only,
+  on_mount: [{CursorAppWeb.UserAuth, :ensure_authenticated}] do
+
+  scope "/admin", CursorAppWeb.Live do
+    pipe_through :browser
+
+    live "/dashboard", AdminDashboardLive
+  end
+end
+
   pipeline :api do
     plug :accepts, ["json"]
   end

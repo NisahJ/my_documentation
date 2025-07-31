@@ -24,6 +24,20 @@
   ">
     <!-- Top-right auth links -->
     <ul class="absolute top-4 right-6 z-10 flex items-center gap-4">
+
+    <%= if live_flash(@flash, :info) do %>
+  <div class="bg-green-100 text-green-800 px-4 py-2 rounded">
+    <%= live_flash(@flash, :info) %>
+  </div>
+<% end %>
+
+<%= if live_flash(@flash, :error) do %>
+  <div class="bg-red-100 text-red-800 px-4 py-2 rounded">
+    <%= live_flash(@flash, :error) %>
+  </div>
+<% end %>
+
+
   <%= if @current_user do %>
     <li class="text-sm text-black font-bold">
       {@current_user.email}

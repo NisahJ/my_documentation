@@ -26,14 +26,58 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
     {:noreply, update(socket, :show_status_dropdown, fn val -> not val end)}
   end
 
+  def handle_event("search", %{"q" => query}, socket) do
+    role = socket.assigns.selected_role || ""
+    {:noreply,
+     push_patch(socket,
+       to: ~p"/admin/users/list/1?role=#{role}&q=#{URI.encode(query)}&page=1"
+     )}
+  end
+
+  def handle_event("filter_role", %{"role" => role}, socket) do
+    {:noreply,
+     push_patch(socket,
+       to: ~p"/admin/users/list/1?role=#{role}&page=1"
+     )}
+  end
+
+  def handle_event("select_user", %{"id" => id}, socket) do
+    {:noreply, assign(socket, :selected_user_id, id)}
+  end
+
+  def handle_event("edit_user", %{"id" => id}, socket) do
+    # Contoh: redirect ke borang edit (atau boleh buat popup)
+    {:noreply, put_flash(socket, :info, "Edit user ID: #{id}")}
+  end
+
+ ## def handle_event("delete_user", %{"id" => id}, socket) do
+ ##   user = String.to_integer(id)
+ ##   {:ok, _} = CursorApp.Accounts.delete_user(user)
+
+ ##  users = CursorApp.Accounts.list_users()
+
+ ##   {:noreply,
+ ##    socket
+ ##    |> assign(:users, users)
+ ##    |> put_flash(:info, "Pengguna dipadam")}
+ ##    end
+
   def handle_params(%{"list" => "1"} = params, _url, socket) do
     page_int = String.to_integer(Map.get(params, "page", "1"))
     role = Map.get(params, "role", nil)
+    query = Map.get(params, "q", "") # default kosong jika tiada
     per_page = 5
     offset = (page_int - 1) * per_page
 
-    users = CursorApp.Accounts.list_users(%{limit: per_page, offset: offset, role: role})
-    total_users = CursorApp.Accounts.count_users(%{role: role})
+    filters = %{
+      limit: per_page,
+      offset: offset,
+      role: role,
+      query: query
+    }
+
+    users = CursorApp.Accounts.list_users(filters)
+    total_users = CursorApp.Accounts.count_users(filters)
     total_pages = div(total_users + per_page - 1, per_page)
 
     {:noreply,
@@ -42,14 +86,8 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
      |> assign(:users, users)
      |> assign(:pagination, %{page: page_int, total_pages: total_pages})
      |> assign(:selected_role, role)
+     |> assign(:search_query, query)
      |> assign(:users_section_active, true)}
-  end
-
-  def handle_event("filter_role", %{"role" => role}, socket) do
-    {:noreply,
-     push_patch(socket,
-       to: ~p"/your/path?list=1&role=#{role}&page=1"
-     )}
   end
 
   def handle_params(%{"list" => id}, _url, socket) do     ## ini untuk list_2 (senarai_2) dan list_3 (senarai_3), dan list-list yang lain
@@ -62,28 +100,6 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
      |> assign(:page, "dashboard")
      |> assign(:users_section_active, false)}  # ← penting
   end
-
-  def handle_event("select_user", %{"id" => id}, socket) do
-    {:noreply, assign(socket, :selected_user_id, id)}
-  end
-
-  def handle_event("edit_user", %{"id" => id}, socket) do
-    # Contoh: redirect ke borang edit (atau boleh buat popup)
-    {:noreply, put_flash(socket, :info, "Edit user ID: #{id}")}
-  end
-
-  def handle_event("delete_user", %{"id" => id}, socket) do
-    user = CursorApp.Accounts.get_user!(id)
-    {:ok, _} = CursorApp.Accounts.delete_user(user)
-
-    users = CursorApp.Accounts.list_users()
-
-    {:noreply,
-     socket
-     |> assign(:users, users)
-     |> put_flash(:info, "Pengguna dipadam")}
-  end
-
 
 
   def render(assigns) do
@@ -156,38 +172,37 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
     <div class="max-w-4xl mx-left mt-8">
     <h2 class="text-2xl font-bold mb-4 text-zinc-800">Senarai 1 – Email Pengguna</h2>
 
-    <!-- ✅ Filter Role Dropdown -->
-       <div class="flex justify-between items-center mb-4">
-        <div class="relative inline-block text-left">
-           <button
-             type="button"
-             phx-click="toggle_status_dropdown"
-             class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-             Status <%= if @selected_role, do: "(#{String.capitalize(@selected_role)})" %> ▼
-           </button>
+    <!-- ✅ Status Dropdown + Search Bar dalam satu baris -->
+     <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+       <!-- Status Dropdown -->
+     <div class="relative inline-block text-left">
+       <button
+            type="button"
+            phx-click="toggle_status_dropdown"
+            class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+       >
+            Status <%= if @selected_role, do: "(#{String.capitalize(@selected_role)})" %> ▼
+       </button>
 
-       <div :if={@show_status_dropdown} class="absolute mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
-         <div class="py-1 text-sm text-gray-700">
-          <!-- Filter Semua -->
-            <.link
-               patch={"/admin/users/list/1?role=&page=1"}
-               class="block px-4 py-2 hover:bg-gray-100"
-               >Semua</.link>
-
-            <!-- Filter Admin -->
-              <.link
-                patch={"/admin/users/list/1?role=admin&page=1"}
-                class="block px-4 py-2 hover:bg-gray-100"
-              >Admin</.link>
-
-            <!-- Filter User -->
-              <.link
-                patch={"/admin/users/list/1?role=user&page=1"}
-                class="block px-4 py-2 hover:bg-gray-100"
-              >User</.link>
+     <div :if={@show_status_dropdown} class="absolute mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+      <div class="py-1 text-sm text-gray-700">
+        <.link patch={"/admin/users/list/1?role=&page=1&q=#{@search_query}"} class="block px-4 py-2 hover:bg-gray-100">Semua</.link>
+        <.link patch={"/admin/users/list/1?role=admin&page=1&q=#{@search_query}"} class="block px-4 py-2 hover:bg-gray-100">Admin</.link>
+        <.link patch={"/admin/users/list/1?role=user&page=1&q=#{@search_query}"} class="block px-4 py-2 hover:bg-gray-100">User</.link>
         </div>
        </div>
+      </div>
+
+         <!-- Search Bar -->
+     <form phx-change="search" phx-submit="search">
+        <input
+          type="text"
+          name="q"
+          value={@search_query}
+          placeholder="Search email or status... 🔍"
+          class="border border-gray-300 rounded px-3 py-2 w-64"
+        />
+       </form>
       </div>
      </div>
 
@@ -227,28 +242,27 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
       </tbody>
      </table>
     </div>
-    </div>
 
      <!-- ✅ PAGINATION -->
-      <div class="flex justify-left mt-6 space-x-2">
-       <%= for p <- 1..@pagination.total_pages do %>
-        <.link
-      patch={"/admin/users/list/1?page=#{p}"}
-      class={
-      [
-        "px-3 py-1 rounded border",
-           if p == @pagination.page do
-              "bg-blue-600 text-white border-blue-600"
-           else
-              "bg-white text-blue-600 hover:bg-blue-100 border-gray-300"
-        end
-      ] }
-    >
-      <%= p %>
-      </.link>
-     <% end %>
-    </div>
 
+       <!-- list_1 -->
+      <div class="flex justify-left mt-6 space-x-2">
+          <%= for p <- 1..@pagination.total_pages do %>
+               <.link
+                patch={"/admin/users/list/1?page=#{p}&q=#{@search_query}&role=#{@selected_role}"}
+                class={["px-3 py-1 rounded border",
+                       if p == @pagination.page do
+                       "bg-blue-600 text-white border-blue-600"
+                        else
+                       "bg-white text-blue-600 hover:bg-blue-100 border-gray-300"
+                       end
+                       ]}>
+               <%= p %>
+             </.link>
+           <% end %>
+       </div>
+
+    <!-- list_2 -->
     <% "list_2" -> %>
     <div class="max-w-4xl mx-left">
       <h1 class="text-2xl font-bold mb-4 text-zinc-800">Senarai 2 – Projek Aktif</h1>
@@ -263,8 +277,9 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
           <p class="text-sm text-zinc-600">Status: Perancangan</p>
         </div>
       </div>
-    </div>
+    </div>S
 
+    <!-- list_3 --S>
     <% "list_3" -> %>
      <div class="max-w-4xl mx-left">
       <h1 class="text-2xl font-bold mb-4 text-zinc-800">Senarai 3 – Laporan</h1>
