@@ -1,9 +1,6 @@
 defmodule CursorAppWeb.UserLoginLive do
   use CursorAppWeb, :live_view
 
-  alias CursorApp.Accounts
-  alias CursorAppWeb.UserAuth
-
   def mount(_params, _session, socket) do
     form = to_form(%{"email" => "", "password" => ""}, as: "user")
     {:ok, assign(socket, form: form)}

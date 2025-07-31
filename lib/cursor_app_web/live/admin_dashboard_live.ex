@@ -65,7 +65,7 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
   def handle_event("filter_role", %{"role" => role}, socket) do
     {:noreply,
      push_patch(socket,
-       to: ~p"/your/path?list=1&role=#{role}&page=1"
+       to: ~p"/admin/users/list/1?role=#{role}&page=1"
      )}
   end
 
@@ -90,7 +90,7 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
   end
 
   def handle_event("delete_user", %{"id" => id}, socket) do
-    user = CursorApp.Accounts.get_user!(id)
+    user = String.to_integer(id)
     {:ok, _} = CursorApp.Accounts.delete_user(user)
 
     users = CursorApp.Accounts.list_users()
@@ -174,38 +174,38 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
     <h2 class="text-2xl font-bold mb-4 text-zinc-800">Senarai 1 – Email Pengguna</h2>
 
     <!-- ✅ Status Dropdown + Search Bar dalam satu baris -->
-<div class="flex flex-wrap items-center justify-between gap-4 mb-4">
-  <!-- Status Dropdown -->
-  <div class="relative inline-block text-left">
-    <button
-      type="button"
-      phx-click="toggle_status_dropdown"
-      class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-    >
-      Status <%= if @selected_role, do: "(#{String.capitalize(@selected_role)})" %> ▼
-    </button>
+     <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+       <!-- Status Dropdown -->
+     <div class="relative inline-block text-left">
+       <button
+            type="button"
+            phx-click="toggle_status_dropdown"
+            class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+       >
+            Status <%= if @selected_role, do: "(#{String.capitalize(@selected_role)})" %> ▼
+       </button>
 
-    <div :if={@show_status_dropdown} class="absolute mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+     <div :if={@show_status_dropdown} class="absolute mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
       <div class="py-1 text-sm text-gray-700">
         <.link patch={"/admin/users/list/1?role=&page=1&q=#{@search_query}"} class="block px-4 py-2 hover:bg-gray-100">Semua</.link>
         <.link patch={"/admin/users/list/1?role=admin&page=1&q=#{@search_query}"} class="block px-4 py-2 hover:bg-gray-100">Admin</.link>
         <.link patch={"/admin/users/list/1?role=user&page=1&q=#{@search_query}"} class="block px-4 py-2 hover:bg-gray-100">User</.link>
+        </div>
+       </div>
       </div>
-    </div>
-  </div>
 
          <!-- Search Bar -->
-  <form phx-change="search" phx-submit="search">
-    <input
-      type="text"
-      name="q"
-      value={@search_query}
-      placeholder="Search email or status..."
-      class="border border-gray-300 rounded px-3 py-2 w-64"
-    />
-  </form>
-</div>
-</div>
+     <form phx-change="search" phx-submit="search">
+        <input
+          type="text"
+          name="q"
+          value={@search_query}
+          placeholder="Search email or status..."
+          class="border border-gray-300 rounded px-3 py-2 w-64"
+        />
+       </form>
+      </div>
+     </div>
 
     <div class="overflow-auto rounded shadow">
     <table class="w-full text-left text-sm bg-white/80 backdrop-blur-sm border border-zinc-300">
