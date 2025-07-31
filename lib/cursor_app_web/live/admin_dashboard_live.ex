@@ -26,14 +26,30 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
     {:noreply, update(socket, :show_status_dropdown, fn val -> not val end)}
   end
 
+  def handle_event("search", %{"q" => query}, socket) do
+    role = socket.assigns.selected_role || ""
+    {:noreply,
+     push_patch(socket,
+       to: ~p"/admin/users/list/1?role=#{role}&q=#{URI.encode(query)}&page=1"
+     )}
+  end
+
   def handle_params(%{"list" => "1"} = params, _url, socket) do
     page_int = String.to_integer(Map.get(params, "page", "1"))
     role = Map.get(params, "role", nil)
+    query = Map.get(params, "q", "") # default kosong jika tiada
     per_page = 5
     offset = (page_int - 1) * per_page
 
-    users = CursorApp.Accounts.list_users(%{limit: per_page, offset: offset, role: role})
-    total_users = CursorApp.Accounts.count_users(%{role: role})
+    filters = %{
+      limit: per_page,
+      offset: offset,
+      role: role,
+      query: query
+    }
+
+    users = CursorApp.Accounts.list_users(filters)
+    total_users = CursorApp.Accounts.count_users(filters)
     total_pages = div(total_users + per_page - 1, per_page)
 
     {:noreply,
@@ -42,6 +58,7 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
      |> assign(:users, users)
      |> assign(:pagination, %{page: page_int, total_pages: total_pages})
      |> assign(:selected_role, role)
+     |> assign(:search_query, query)
      |> assign(:users_section_active, true)}
   end
 
@@ -190,6 +207,16 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
        </div>
       </div>
      </div>
+
+         <form phx-change="search" phx-submit="search" class="mb-4">
+           <input
+              type="text"
+              name="q"
+              value={@search_query}
+              placeholder="Search email or status..."
+              class="border p-2 rounded w-1/3"
+           />
+         </form>
 
     <div class="overflow-auto rounded shadow">
     <table class="w-full text-left text-sm bg-white/80 backdrop-blur-sm border border-zinc-300">

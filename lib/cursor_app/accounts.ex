@@ -13,13 +13,26 @@ defmodule CursorApp.Accounts do
     limit = Map.get(opts, :limit, 10)
     offset = Map.get(opts, :offset, 0)
     role_filter = build_role_filter(opts[:role])
+    query = Map.get(opts, :query, "")
 
-    from(u in User,
-      where: ^role_filter,
-      limit: ^limit,
-      offset: ^offset
-    )
-    |> Repo.all()
+    base =
+      from u in User,
+        where: ^role_filter,
+        limit: ^limit,
+        offset: ^offset
+
+    base =
+      if query != "" do
+        like = "%#{query}%"
+        from u in base,
+          where:
+            ilike(u.email, ^like) or
+            ilike(u.role, ^like)
+      else
+        base
+      end
+
+    Repo.all(base)
   end
 
   defp build_role_filter(nil), do: true
@@ -43,8 +56,25 @@ defmodule CursorApp.Accounts do
 
   def count_users(opts \\ %{}) do
     role_filter = build_role_filter(opts[:role])
+    query = Map.get(opts, :query, "")
 
-    from(u in User, where: ^role_filter)
+    base =
+      from u in User,
+        where: ^role_filter
+
+    base =
+      if query != "" do
+        like = "%#{query}%"
+
+        from u in base,
+          where:
+            ilike(u.email, ^like) or
+            ilike(u.role, ^like)
+      else
+        base
+      end
+
+    base
     |> select([u], count(u.id))
     |> Repo.one()
   end
