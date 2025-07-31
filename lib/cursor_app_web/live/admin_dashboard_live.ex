@@ -199,7 +199,7 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
           type="text"
           name="q"
           value={@search_query}
-          placeholder="Search email or status..."
+          placeholder="Search email or status... 🔍"
           class="border border-gray-300 rounded px-3 py-2 w-64"
         />
        </form>
