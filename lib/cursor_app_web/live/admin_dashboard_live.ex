@@ -34,6 +34,34 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
      )}
   end
 
+  def handle_event("filter_role", %{"role" => role}, socket) do
+    {:noreply,
+     push_patch(socket,
+       to: ~p"/admin/users/list/1?role=#{role}&page=1"
+     )}
+  end
+
+  def handle_event("select_user", %{"id" => id}, socket) do
+    {:noreply, assign(socket, :selected_user_id, id)}
+  end
+
+  def handle_event("edit_user", %{"id" => id}, socket) do
+    # Contoh: redirect ke borang edit (atau boleh buat popup)
+    {:noreply, put_flash(socket, :info, "Edit user ID: #{id}")}
+  end
+
+  def handle_event("delete_user", %{"id" => id}, socket) do
+    user = String.to_integer(id)
+    {:ok, _} = CursorApp.Accounts.delete_user(user)
+
+    users = CursorApp.Accounts.list_users()
+
+    {:noreply,
+     socket
+     |> assign(:users, users)
+     |> put_flash(:info, "Pengguna dipadam")}
+  end
+
   def handle_params(%{"list" => "1"} = params, _url, socket) do
     page_int = String.to_integer(Map.get(params, "page", "1"))
     role = Map.get(params, "role", nil)
@@ -62,13 +90,6 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
      |> assign(:users_section_active, true)}
   end
 
-  def handle_event("filter_role", %{"role" => role}, socket) do
-    {:noreply,
-     push_patch(socket,
-       to: ~p"/admin/users/list/1?role=#{role}&page=1"
-     )}
-  end
-
   def handle_params(%{"list" => id}, _url, socket) do     ## ini untuk list_2 (senarai_2) dan list_3 (senarai_3), dan list-list yang lain
     {:noreply, assign(socket, page: "list_#{id}")}
   end
@@ -79,28 +100,6 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
      |> assign(:page, "dashboard")
      |> assign(:users_section_active, false)}  # ← penting
   end
-
-  def handle_event("select_user", %{"id" => id}, socket) do
-    {:noreply, assign(socket, :selected_user_id, id)}
-  end
-
-  def handle_event("edit_user", %{"id" => id}, socket) do
-    # Contoh: redirect ke borang edit (atau boleh buat popup)
-    {:noreply, put_flash(socket, :info, "Edit user ID: #{id}")}
-  end
-
-  def handle_event("delete_user", %{"id" => id}, socket) do
-    user = String.to_integer(id)
-    {:ok, _} = CursorApp.Accounts.delete_user(user)
-
-    users = CursorApp.Accounts.list_users()
-
-    {:noreply,
-     socket
-     |> assign(:users, users)
-     |> put_flash(:info, "Pengguna dipadam")}
-  end
-
 
 
   def render(assigns) do

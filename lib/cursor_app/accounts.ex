@@ -40,19 +40,19 @@ defmodule CursorApp.Accounts do
   defp build_role_filter("user"), do: dynamic([u], u.role == "user")
   defp build_role_filter(_), do: true
 
-  defp maybe_limit(query, opts) do
-    case Keyword.get(opts, :limit) do
-      nil -> query
-      val -> limit(query, ^val)
-    end
-  end
+##  defp maybe_limit(query, opts) do
+##   case Keyword.get(opts, :limit) do
+##      nil -> query
+##      val -> limit(query, ^val)
+##    end
+##  end
 
-  defp maybe_offset(query, opts) do
-    case Keyword.get(opts, :offset) do
-      nil -> query
-      val -> offset(query, ^val)
-    end
-  end
+ ## defp maybe_offset(query, opts) do
+ ##   case Keyword.get(opts, :offset) do
+ ##     nil -> query
+ ##     val -> offset(query, ^val)
+ ##   end
+ ## end
 
   def count_users(opts \\ %{}) do
     role_filter = build_role_filter(opts[:role])
