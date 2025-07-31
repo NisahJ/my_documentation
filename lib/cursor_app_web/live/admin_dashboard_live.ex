@@ -257,25 +257,25 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
     </div>
 
      <!-- ✅ PAGINATION -->
-      <div class="flex justify-left mt-6 space-x-2">
-       <%= for p <- 1..@pagination.total_pages do %>
-        <.link
-      patch={"/admin/users/list/1?page=#{p}"}
-      class={
-      [
-        "px-3 py-1 rounded border",
-           if p == @pagination.page do
-              "bg-blue-600 text-white border-blue-600"
-           else
-              "bg-white text-blue-600 hover:bg-blue-100 border-gray-300"
-        end
-      ] }
-    >
-      <%= p %>
-      </.link>
-     <% end %>
-    </div>
 
+       <!-- list_1 -->
+      <div class="flex justify-left mt-6 space-x-2">
+          <%= for p <- 1..@pagination.total_pages do %>
+               <.link
+                patch={"/admin/users/list/1?page=#{p}&q=#{@search_query}&role=#{@selected_role}"}
+                class={["px-3 py-1 rounded border",
+                       if p == @pagination.page do
+                       "bg-blue-600 text-white border-blue-600"
+                        else
+                       "bg-white text-blue-600 hover:bg-blue-100 border-gray-300"
+                       end
+                       ]}>
+               <%= p %>
+             </.link>
+           <% end %>
+       </div>
+
+    <!-- list_2 -->
     <% "list_2" -> %>
     <div class="max-w-4xl mx-left">
       <h1 class="text-2xl font-bold mb-4 text-zinc-800">Senarai 2 – Projek Aktif</h1>
@@ -290,8 +290,9 @@ defmodule CursorAppWeb.Live.AdminDashboardLive do
           <p class="text-sm text-zinc-600">Status: Perancangan</p>
         </div>
       </div>
-    </div>
+    </div>S
 
+    <!-- list_3 --S>
     <% "list_3" -> %>
      <div class="max-w-4xl mx-left">
       <h1 class="text-2xl font-bold mb-4 text-zinc-800">Senarai 3 – Laporan</h1>
